@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:proplus/core/theme/theme_provider.dart';
 import 'package:proplus/feature/auth/login_screen.dart';
+import 'package:proplus/feature/home/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -27,6 +28,10 @@ class MyApp extends ConsumerWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: LoginScreen(),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }
