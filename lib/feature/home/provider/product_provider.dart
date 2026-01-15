@@ -10,20 +10,24 @@ final productRepositoryProvider = Provider<ProductRepository>((ref) {
 });
 
 /// Provider for fetching products list with pagination
-final productsProvider = FutureProvider.family<ProductListResponse, int>((ref, page) async {
+final productsProvider = FutureProvider.family<ProductListResponse, int>((ref,
+    page) async {
   final repository = ref.watch(productRepositoryProvider);
   final skip = (page - 1) * 10;
   return repository.getProducts(skip: skip, limit: 10);
 });
 
 /// Provider for fetching a single product by ID
-final productByIdProvider = FutureProvider.family<Product, int>((ref, productId) async {
+final productByIdProvider = FutureProvider.family<Product, int>((ref,
+    productId) async {
   final repository = ref.watch(productRepositoryProvider);
   return repository.getProductById(productId);
 });
 
 /// Provider for searching products
-final searchProductsProvider = FutureProvider.autoDispose.family<ProductListResponse, String>((ref, query) async {
+final searchProductsProvider = FutureProvider.autoDispose.family<
+    ProductListResponse,
+    String>((ref, query) async {
   final repository = ref.watch(productRepositoryProvider);
   return repository.searchProducts(query: query);
 });
@@ -45,7 +49,7 @@ class ProductNotifier extends AsyncNotifier<ProductListResponse> {
     final skip = (page - 1) * 10;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
-      () => repository.getProducts(skip: skip, limit: 10),
+          () => repository.getProducts(skip: skip, limit: 10),
     );
   }
 
@@ -54,14 +58,31 @@ class ProductNotifier extends AsyncNotifier<ProductListResponse> {
     _currentPage++;
     final skip = (_currentPage - 1) * 10;
     final newState = await AsyncValue.guard(
-      () => repository.getProducts(skip: skip, limit: 10),
+          () => repository.getProducts(skip: skip, limit: 10),
     );
+
+    state = newState.whenData((data) {
+      return state.maybeWhen(
+          data: (p) {
+            return ProductListResponse(products: [
+              ...p.products,
+              ...data.products
+            ],
+                total: data.total,
+                skip: data.skip,
+                limit: data.limit);
+          },
+          orElse: () {
+            return data;
+          });
+    });
 
     state = newState.whenData((newProducts) {
       return state.maybeWhen(
         data: (currentProducts) {
           return ProductListResponse(
-            products: [...currentProducts.products, ...newProducts.products], // This will add products to existing list
+            products: [...currentProducts.products, ...newProducts.products],
+            // This will add products to existing list
             total: newProducts.total,
             skip: newProducts.skip,
             limit: newProducts.limit,
@@ -77,13 +98,15 @@ class ProductNotifier extends AsyncNotifier<ProductListResponse> {
     _currentPage = 1;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
-      () => repository.getProducts(skip: 0, limit: 10),
+          () => repository.getProducts(skip: 0, limit: 10),
     );
   }
 }
 
 /// AsyncNotifier provider for managing product list state
-final productNotifierProvider = AsyncNotifierProvider<ProductNotifier, ProductListResponse>(() {
+final productNotifierProvider = AsyncNotifierProvider<
+    ProductNotifier,
+    ProductListResponse>(() {
   return ProductNotifier();
 });
 
