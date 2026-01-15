@@ -61,7 +61,7 @@ class ProductNotifier extends AsyncNotifier<ProductListResponse> {
       return state.maybeWhen(
         data: (currentProducts) {
           return ProductListResponse(
-            products: [...currentProducts.products, ...newProducts.products],
+            products: [...currentProducts.products, ...newProducts.products], // This will add products to existing list
             total: newProducts.total,
             skip: newProducts.skip,
             limit: newProducts.limit,
