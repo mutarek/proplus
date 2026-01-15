@@ -60,23 +60,6 @@ class ProductNotifier extends AsyncNotifier<ProductListResponse> {
     final newState = await AsyncValue.guard(
           () => repository.getProducts(skip: skip, limit: 10),
     );
-
-    state = newState.whenData((data) {
-      return state.maybeWhen(
-          data: (p) {
-            return ProductListResponse(products: [
-              ...p.products,
-              ...data.products
-            ],
-                total: data.total,
-                skip: data.skip,
-                limit: data.limit);
-          },
-          orElse: () {
-            return data;
-          });
-    });
-
     state = newState.whenData((newProducts) {
       return state.maybeWhen(
         data: (currentProducts) {
