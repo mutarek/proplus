@@ -17,8 +17,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
-    // Fetch products when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Fetch products on initial load
       ref.read(productNotifierProvider.notifier).fetchProducts();
     });
   }
